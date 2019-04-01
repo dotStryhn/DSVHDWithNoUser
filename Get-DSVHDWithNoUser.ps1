@@ -20,8 +20,10 @@
 [CmdletBinding()]
 Param()
 
+# Parses the current folder for vhdx files.
 $Items = Get-ChildItem -Recurse:$false | Where-Object { $_.Extension -eq ".vhdx" }
 
+# Sets variables to 0
 $TotalCount = 0
 $TotalSize = 0
 $ValidCount = 0
@@ -31,26 +33,35 @@ $InValidSize = 0
 $Skipped = 0
 $SkippedSize = 0
 
+# Checks the files found in $Items
 foreach ($Item in $Items) {
+    # Total count & adds current filesize to totals
     $TotalCount++
     $TotalSize += $Item.Length
+    # Clears any earlier Matches & Users
     $Matches = $null
     $User = $null
     Write-Verbose "Starting with $($Item.Name)"
-    if($Item.Name -match "^VHD-(?<USID>S-1-5-21(-\d{1,10}){1,10}).vhdx$") {
+    # Uses a regular expression to match, and graps the SID to a variable for later use
+    if($Item.Name -match "^UVHD-(?<USID>S-1-5-21(-\d{1,10}){1,10}).vhdx$") {
         Write-Verbose "`t### SID: $($Matches.USID)"
+        # Does a ADSI check, for the SID to see if it exists
         $User = [ADSI]"LDAP://<SID=$($Matches.USID)>"
-        if (!$User.DistinguishedName) {
+        if (!$User.DistinguishedName) { # If the user dont exist
+            # InValid count & adds current filesize to InValid totals
             $InValidCount++
             $InValidSize += $Item.Length
             Write-Verbose "`### No match on SID"
+            # Returns the Object
             $Item
-        } else {
+        } else { # If user exists
+            # Valid count & adds current filesize to Valid totals
             $ValidCount++
             $ValidSize += $Item.Length
             Write-Verbose "`t### User: $($User.Name)"
         }
-    } else {
+    } else { # If not matching the regular expression
+        # Skip count & adds current filesize to Skipped totals
         $Skipped++
         $SkippedSize += $Item.Length
         Write-Verbose "`t### Incorrect Naming"
