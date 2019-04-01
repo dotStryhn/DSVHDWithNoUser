@@ -1,3 +1,22 @@
+<#
+   .SYNOPSIS
+    Script for looking up SID for VHDX-files used with ie. RDS-Solution
+   .EXAMPLE
+    ./Get-DSVHDWithNoUser.ps1
+    Will parse the current directory for files with the extension .vhdx and
+    use a regular expression to identify the files, and grap the User's SID
+    and do a lookup to verify if the user exists, if the user don't exist,
+    the file will be passed on.
+    Using -Verbose will make a overview in the end, and show the process of
+    the function.
+   .Notes
+    Name:       Get-DSVHDWithNoUser.ps1
+    Author:     Tom Stryhn (@dotStryhn)
+   .Link
+    https://github.com/dotStryhn/Get-DSVHDWithNoUser
+    http://dotstryhn.dk
+#>
+
 [CmdletBinding()]
 Param()
 
